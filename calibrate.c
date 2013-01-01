@@ -59,28 +59,41 @@ int main(int argc, char **argv) {
 
 	int d = 0;
 
-	while (1) {
+	int xCenters[] = {tw / 2, w - tw / 2, w - tw / 2, tw / 2};
+	int yCenters[] = {th / 2, th  / 2, h - th / 2, h - th / 2};
+
+	while (d < 4) {
 		if (al_get_next_event(queue, &event)) {
 			if (event.type == ALLEGRO_EVENT_KEY_DOWN || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
 				break;
 			}
 		}
 
-/*		scanf("%d", &d);*/
+		if (d >= 4) {
+			break;
+		}
+
+		scanf("%d", &d);
+		al_get_mouse_state(&state);
+
+		printf("%d,%d\n", xCenters[d - 1], yCenters[d - 1]);
 
 		if (d) {
 			switch (d) {
 				case 1:
+					al_clear_to_color(al_map_rgb(0, 0, 0));
 					al_draw_bitmap(target, w - tw, 0, 0);
 					al_flip_display();
 					break;
 
 				case 2:
+					al_clear_to_color(al_map_rgb(0, 0, 0));
 					al_draw_bitmap(target, w - tw, h - th, 0);
 					al_flip_display();
 					break;
 
 				case 3:
+					al_clear_to_color(al_map_rgb(0, 0, 0));
 					al_draw_bitmap(target, 0, h - th, 0);
 					al_flip_display();
 					break;
@@ -88,10 +101,6 @@ int main(int argc, char **argv) {
 				default: break;
 			}
 		}
-
-		d++;
-
-		al_get_mouse_state(&state);
 	}
 
 	return 0;
