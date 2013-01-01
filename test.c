@@ -83,6 +83,11 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
+	if (!al_install_keyboard()) {
+		printf("could not install keybaord\n");
+		return 1;
+	}
+
 	if (!al_install_mouse()) {
 		printf("could not install mouse\n");
 		return 1;
@@ -109,6 +114,8 @@ int main(int argc, char **argv) {
 	ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
 	ALLEGRO_EVENT event;
 	al_register_event_source(queue, al_get_mouse_event_source());
+	al_register_event_source(queue, al_get_keyboard_event_source());
+	al_register_event_source(queue, al_get_display_event_source(display));
 
 	while (input_counter < 4) {
 		al_wait_for_event(queue, &event);
@@ -168,7 +175,19 @@ int main(int argc, char **argv) {
 
 	float total;
 
+	al_flush_event_queue(queue);
+
 	while (1) {
+		al_wait_for_event(queue, &event);
+
+		if (event.type != ALLEGRO_EVENT_MOUSE_AXES) {
+			if (event.type == ALLEGRO_EVENT_KEY_DOWN || event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+				break;
+			}
+
+			continue;
+		}
+
 		al_draw_bitmap(bitmap, 0, 0, 0);
 
 		// get the input point
@@ -196,7 +215,7 @@ int main(int argc, char **argv) {
 		float BCurs = fabs(p.y - input_points[1].y);
 		float topCurs = ACurs * BA + BCurs * AB;
 
-		al_draw_line(p.x, p.y, p.x, p.y + topVec, al_map_rgb(0, 255, 0), 1.0);
+		al_draw_line(p.x, p.y, p.x, p.y + topVec, al_map_rgb(0, 255, 0), 4.0);
 		al_draw_circle(p.x, p.y + topVec, 5, al_map_rgb(0, 0, 0), 2.0);
 
 		float CD = CDistance / DDistance;
@@ -211,7 +230,7 @@ int main(int argc, char **argv) {
 		float CCurs = fabs(p.y - input_points[2].y);
 		float bottomCurs = DCurs * CD + CCurs * DC;
 
-		al_draw_line(p.x, p.y, p.x, p.y + bottomVec, al_map_rgb(0, 255, 0), 1.0);
+		al_draw_line(p.x, p.y, p.x, p.y + bottomVec, al_map_rgb(0, 255, 0), 4.0);
 		al_draw_circle(p.x, p.y + bottomVec, 5, al_map_rgb(0, 0, 0), 2.0);
 
 		float topBottom = topCurs / bottomCurs;
@@ -232,7 +251,7 @@ int main(int argc, char **argv) {
 		CCurs = fabs(p.x - input_points[2].x);
 		float rightCurs= BCurs * CB + CCurs * BC;
 
-		al_draw_line(p.x, p.y, p.x + rightVec, p.y, al_map_rgb(0, 255, 0), 1.0);
+		al_draw_line(p.x, p.y, p.x + rightVec, p.y, al_map_rgb(0, 255, 0), 4.0);
 		al_draw_circle(p.x + rightVec, p.y, 5, al_map_rgb(0, 0, 0), 2.0);
 
 		float DA = DDistance / ADistance;
@@ -247,7 +266,7 @@ int main(int argc, char **argv) {
 		DCurs = fabs(p.x - input_points[3].x);
 		float leftCurs = ACurs * DA + DCurs * AD;
 
-		al_draw_line(p.x, p.y, p.x + leftVec, p.y, al_map_rgb(0, 255, 0), 1.0);
+		al_draw_line(p.x, p.y, p.x + leftVec, p.y, al_map_rgb(0, 255, 0), 4.0);
 		al_draw_circle(p.x + leftVec, p.y, 5, al_map_rgb(0, 0, 0), 2.0);
 
 		float leftRight = leftCurs / rightCurs;
@@ -280,21 +299,29 @@ int main(int argc, char **argv) {
 		PPPrime.y = topVec * bottomTop + bottomVec * topBottom;
 		PPPrime.x = rightVec * leftRight + leftVec * rightLeft;
 
+		al_draw_line(p.x, p.y, p.x + PPPrime.x, p.y, al_map_rgb(0, 0, 255), 2.0);
+		al_draw_line(p.x, p.y, p.x, p.y + PPPrime.y, al_map_rgb(0, 0, 255), 2.0);
+
 		al_draw_circle(p.x + xOfs + PPPrime.x, p.y + yOfs + PPPrime.y, 5, al_map_rgb(0, 255, 0), 2.0);
 		al_draw_circle(p.x + xOfs + PPPrime.x, p.y + yOfs + PPPrime.y, 1, al_map_rgb(0, 0, 0), 1.0);
 
-		// draw the surface center
-		al_draw_circle(center.x, center.y, 3.0, al_map_rgb(0, 0, 0), 1.0);
-
 		al_flip_display();
-
-		al_rest(1);
 	}
 
 	return 0;
 }
 
 /*
+	-find prime vector for each point
+		-prime vector = point' - corresponding_point
 	-for each pair of left, top, right, bottom
-		-average pair based on ratios between
+		-average pair based on ratios of distances between input point and verts
+			-xy = x / y
+			-yx = y / x
+			-total = xy + tx
+			-x /= total
+			-y /= total
+		-result = x * yx + y * xy
+	-for each pair of top-bottom, left-right
+		-average pair based on ratios of distances between input point and perpendicular liness
 */
