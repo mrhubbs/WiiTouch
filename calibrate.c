@@ -36,6 +36,8 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
+	al_hide_mouse_cursor(display);
+
 	ALLEGRO_BITMAP *target = al_load_bitmap("target.jpg");
 
 	al_set_target_backbuffer(display);
