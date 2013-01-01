@@ -313,15 +313,16 @@ int main(int argc, char **argv) {
 
 /*
 	-find prime vector for each point
-		-prime vector = point' - corresponding_point
+		-prime vector = point' - closest_point
 	-for each pair of left, top, right, bottom
 		-average pair based on ratios of distances between input point and verts
-			-xy = x / y
-			-yx = y / x
-			-total = xy + tx
-			-x /= total
-			-y /= total
+			xy = x / y
+			yx = y / x
+			total = xy + yx
+			x /= total
+			y /= total
 		-result = x * yx + y * xy
 	-for each pair of top-bottom, left-right
 		-average pair based on ratios of distances between input point and perpendicular liness
+	-if A does not correspond to A', rotate accordingly
 */
