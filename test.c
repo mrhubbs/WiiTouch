@@ -325,4 +325,6 @@ int main(int argc, char **argv) {
 	-for each pair of top-bottom, left-right
 		-average pair based on ratios of distances between input point and perpendicular liness
 	-if A does not correspond to A', rotate accordingly
+
+	TODO: it may be a flaw to use the raw distance, instead of the along the particular axis
 */
