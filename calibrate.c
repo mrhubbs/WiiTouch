@@ -45,6 +45,12 @@ int main(int argc, char **argv) {
 	al_draw_bitmap(target, 0, 0, 0);
 	al_flip_display();
 
+	al_set_window_position(display, 500, 400);
+
+	int xOfs, yOfs;
+
+	al_get_window_position(display, &xOfs, &yOfs);
+
 	ALLEGRO_MOUSE_STATE state;
 
 	ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
@@ -63,6 +69,13 @@ int main(int argc, char **argv) {
 
 	int xCenters[] = {tw / 2, w - tw / 2, w - tw / 2, tw / 2};
 	int yCenters[] = {th / 2, th  / 2, h - th / 2, h - th / 2};
+
+	int i = 0;
+
+	for (; i < 4; i++) {
+		xCenters[i] += xOfs;
+		yCenters[i] += yOfs;
+	}
 
 	while (d < 4) {
 		if (al_get_next_event(queue, &event)) {
