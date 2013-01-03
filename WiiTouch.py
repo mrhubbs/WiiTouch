@@ -12,6 +12,8 @@ NEUTRAL		= 0
 FIRST_INPUT	= 1
 PRESSED		= 2
 
+FIRST_INPUT_TO_PRESSED	= 0.3	# seconds
+
 class Point(object):
 	def __init__(self, x, y):
 		self.x = x
@@ -124,8 +126,6 @@ def main():
 		pos = getWiiPointNonBlock(wm)
 
 		if (pos != None):
-			lastTime = time.time()
-
 			ipt = numpy.matrix([[pos.x], [pos.y], [1]])
 			optMat = trans.I * ipt
 			o = Point(optMat[0] / optMat[2], optMat[1] / optMat[2])
@@ -140,11 +140,27 @@ def main():
 			elif (o.y >= screen[1]):
 				o.y = screen[1] - 1
 
-			mouse.press(o.x, o.y)
+			if (state == NEUTRAL):
+				state = FIRST_INPUT
+				lastTime = time.time()
+			elif (state == FIRST_INPUT):
+				if (time.time() - FIRST_INPUT_TO_PRESSED > lastTime):
+					mouse.press(o.x, o.y)
+					state = PRESSED
+			elif (state == PRESSED):
+				mouse.move(o.x, o.y)
 
-		if (time.time() - 0.5 > lastTime and o != None):
+		if (state == FIRST_INPUT and
+			pos == None and
+			time.time() - FIRST_INPUT_TO_PRESSED < lastTime):
+			mouse.click(o.x, o.y)
+			state = NEUTRAL
+
+		if (state == PRESSED and
+			pos == None and
+			time.time() - 1 > lastTime):
 			mouse.release(o.x, o.y)
-			o = None
+			state = NEUTRAL
 
 if (__name__ == '__main__'):
 	main()
