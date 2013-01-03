@@ -190,26 +190,13 @@ def pushA(l):
 	return l
 
 # return the combined sum of c1 and c2, based on the distances d1 and d2
-def avgComponents(c1, c2, d1, d2, v=False):
-	if (d2 == 0.0):
-		d1d2 = 1.0
-		d2d1 = 0.0
-	elif (d1 == 0.0):
-		d2d1 = 1.0
-		d1d2 = 0.0
-	else:
-		d1d2 = d1 / d2
-		d2d1 = d2 / d1
+def avgComponents(c1, c2, d1, d2):
+	total = d1 + d2
 
-	total = d1d2 + d2d1
+	fac1 = d2 / total
+	fac2 = d1 / total
 
-	d1d2 /= total
-	d2d1 /= total
-
-	if (v):
-		print(d1d2,d2d1)
-
-	return c1 * d2d1 + c2 * d1d2
+	return c1 * fac1 + c2 * fac2
 
 # vector from point to start of line seg projected onto Y-axis
 def distancePointToVectorY(p, v, vp):
@@ -232,7 +219,7 @@ def distancePointToVectorX(p, v, vp):
 def getOutputPoint(ip, iPoints, iPV, primes):
 	if (mapCase == CASE0 or mapCase == CASE3):
 		top = avgComponents(primes[0].y, primes[1].y,
-			math.fabs(ip.x - iPoints[0].x), math.fabs(ip.x - iPoints[1].x), True)
+			math.fabs(ip.x - iPoints[0].x), math.fabs(ip.x - iPoints[1].x))
 		bottom = avgComponents(primes[2].y, primes[3].y,
 			math.fabs(ip.x - iPoints[2].x), math.fabs(ip.x - iPoints[3].x))
 
