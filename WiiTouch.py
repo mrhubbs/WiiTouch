@@ -114,7 +114,13 @@ def main():
 
 	print('battery: %f%%' % (float(wm.state['battery']) / float(cwiid.BATTERY_MAX) * 100.0))
 
+	window = pygame.display.set_mode((200, 150))
+
 	while True:
+		for event in pygame.event.get():
+			if (event.type == pygame.QUIT):
+				sys.exit(0)
+
 		pos = getWiiPointNonBlock(wm)
 
 		if (pos != None):
