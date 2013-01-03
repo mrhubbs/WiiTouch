@@ -1,34 +1,3 @@
-## pymouse
-
-## import the module
-#from pymouse import PyMouse
-
-## instantiate an mouse object
-#m = PyMouse()
-
-## move the mouse to int x and int y (these are absolute positions)
-#m.move(200, 200)
-
-## click works about the same, except for int button possible values are 1: left, 2: middle, 3: right
-#m.click(500, 300, 1)
-
-## get the screen size
-#print(m.screen_size())
-## (1024, 768)
-
-## get the mouse position
-#print(m.position())
-## (500, 300)
-
-## cwiid
-
-#import cwiid
-
-#wm = cwiid.Wiimote("00:25:A0:CE:3B:6D")
-#wm.rpt_mode = cwiid.RPT_BTN | cwiid.RPT_IR
-#wm.state
-#wm.state['buttons'] & cwiid.BTN_A
-
 import sys
 import math
 import pygame
@@ -63,16 +32,6 @@ class Vector(object):
 
 	def __repr__(self):
 		return 'Vector: (' + str(self.x) + "," + str(self.y) + ')'
-
-#class PosVector(object):
-#	def __init__(self, x, y, xDir, yDir):
-#		self.x = x
-#		self.y = y
-#		self.xDir = xDir
-#		self.yDir = yDir
-
-#	def __repr__(self):
-#		return 'PosVector: (' + str(self.x) + "," + str(self.y) + ') -> (' + str(self.xDir) + "," + str(self.yDir) + ')'
 
 class Point(object):
 	def __init__(self, x, y):
