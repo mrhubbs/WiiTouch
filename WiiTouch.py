@@ -154,6 +154,7 @@ def main():
 			pos == None and
 			time.time() - FIRST_INPUT_TO_PRESSED < lastTime):
 			mouse.click(o.x, o.y)
+			time.sleep(0.2)
 			state = NEUTRAL
 
 		if (state == PRESSED and
