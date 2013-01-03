@@ -13,8 +13,8 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-/*	al_set_new_display_flags(ALLEGRO_FULLSCREEN);*/
-	ALLEGRO_DISPLAY *display = al_create_display(800, 600);
+	al_set_new_display_flags(ALLEGRO_FULLSCREEN);
+	ALLEGRO_DISPLAY *display = al_create_display(1920, 1080);
 
 	if (!display) {
 		printf("could not create display\n");
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 	al_draw_bitmap(target, 0, 0, 0);
 	al_flip_display();
 
-	al_set_window_position(display, 500, 400);
+/*	al_set_window_position(display, 250, 150);*/
 
 	int xOfs, yOfs;
 
