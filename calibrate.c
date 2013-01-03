@@ -1,20 +1,65 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <sys/select.h>
+#include <termios.h>
+
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
 
 #define TRUE 1
 #define FALSE 0
 
+struct termios orig_termios;
+
+int kbhit() {
+	struct timeval tv = { 0L, 0L };
+	fd_set fds;
+	FD_ZERO(&fds);
+	FD_SET(0, &fds);
+
+	return select(1, &fds, NULL, NULL, &tv);
+}
+
+int getch() {
+	int r;
+	unsigned char c;
+
+	if ((r = read(0, &c, sizeof(c))) < 0) {
+		return r;
+	}
+	else {
+		return c;
+	}
+}
+
+void reset_terminal_mode() {
+	tcsetattr(0, TCSANOW, &orig_termios);
+}
+
+void set_conio_terminal_mode() {
+	struct termios new_termios;
+
+	/* take two copies - one for now, one for later */
+	tcgetattr(0, &orig_termios);
+	memcpy(&new_termios, &orig_termios, sizeof(new_termios));
+
+	/* register cleanup handler, and set the new terminal mode */
+	atexit(reset_terminal_mode);
+	cfmakeraw(&new_termios);
+	tcsetattr(0, TCSANOW, &new_termios);
+}
+
 int main(int argc, char **argv) {
+	set_conio_terminal_mode();
+
 	if (!al_install_system(ALLEGRO_VERSION_INT, NULL)) {
 		printf("could not init Allegro\n");
 		return 1;
 	}
 
-	al_set_new_display_flags(ALLEGRO_FULLSCREEN);
-	ALLEGRO_DISPLAY *display = al_create_display(1920, 1080);
+/*	al_set_new_display_flags(ALLEGRO_FULLSCREEN);*/
+	ALLEGRO_DISPLAY *display = al_create_display(800, 1080);
 
 	if (!display) {
 		printf("could not create display\n");
@@ -51,8 +96,6 @@ int main(int argc, char **argv) {
 
 	al_get_window_position(display, &xOfs, &yOfs);
 
-	ALLEGRO_MOUSE_STATE state;
-
 	ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
 	ALLEGRO_EVENT event;
 
@@ -84,16 +127,17 @@ int main(int argc, char **argv) {
 			}
 		}
 
-		if (d >= 4) {
-			break;
+		if (kbhit()) {
+			d = getch() - 48;
 		}
 
-		scanf("%d", &d);
-		al_get_mouse_state(&state);
+		if (d > 0 && d < 5) {
+			printf("%d,%d\n", xCenters[d - 1], yCenters[d - 1]);
 
-		printf("%d,%d\n", xCenters[d - 1], yCenters[d - 1]);
+			if (d >= 4) {
+				return 0;
+			}
 
-		if (d) {
 			switch (d) {
 				case 1:
 					al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -115,6 +159,8 @@ int main(int argc, char **argv) {
 
 				default: break;
 			}
+
+			al_rest(0.4);
 		}
 	}
 
