@@ -102,7 +102,8 @@ def getTransMatrix(X, x):
 def main():
 	mouse = PyMouse()
 
-	wm = cwiid.Wiimote("00:25:A0:CE:3B:6D")
+#	wm = cwiid.Wiimote("00:25:A0:CE:3B:6D")
+	wm = cwiid.Wiimote()
 	wm.rpt_mode = cwiid.RPT_BTN | cwiid.RPT_IR
 
 	X,x = calibrate(wm)
