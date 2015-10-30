@@ -8,12 +8,6 @@ import subprocess
 from pymouse import PyMouse
 import cwiid
 
-NEUTRAL		= 0
-FIRST_INPUT	= 1
-PRESSED		= 2
-
-FIRST_INPUT_TO_PRESSED	= 0.3	# seconds
-
 class Point(object):
 	def __init__(self, x, y):
 		self.x = x
@@ -23,12 +17,11 @@ class Point(object):
 		return 'Point: (' + str(self.x) + "," + str(self.y) + ')'
 
 def getWiiPoint(wm):
-	# wait until there is no IR data
-	# wait until there is IR data
+	# wait until button A is pressed and there is IR data
 	# capture that point
 
 	while True:
-		while wm.state['ir_src'][0] == None:
+		while (not (wm.state['buttons'] & cwiid.BTN_A)):
 			pass
 
 		prePos = wm.state['ir_src'][0]
@@ -99,6 +92,20 @@ def getTransMatrix(X, x):
 	lam = (ATrans * A).I * ATrans * B
 	return numpy.matrix([[lam[0], lam[1], lam[2]], [lam[3], lam[4], lam[5]], [lam[6], lam[7], 1]])
 
+def avPoints(p):
+	x = 0
+	y = 0
+	_len = len(p)
+
+	for i in range(_len):
+		x += p[i].x
+		y += p[i].y
+
+	x = int(float(x) / float(_len))
+	y = int(float(y) / float(_len))
+
+	return Point(x, y)
+
 def main():
 	mouse = PyMouse()
 
@@ -112,8 +119,7 @@ def main():
 	screen = mouse.screen_size()
 	lastTime = time.time()
 	o = None
-
-	state = NEUTRAL
+	points = []
 
 	print('battery: %f%%' % (float(wm.state['battery']) / float(cwiid.BATTERY_MAX) * 100.0))
 
@@ -124,9 +130,17 @@ def main():
 			if (event.type == pygame.QUIT):
 				sys.exit(0)
 
-		pos = getWiiPointNonBlock(wm)
+		while (time.time() < lastTime + 0.01):
+			pos = getWiiPointNonBlock(wm)
 
-		if (pos != None):
+			if (pos != None):
+				points.append(pos)
+
+		print(len(points))
+
+		if (len(points) > 0):
+			pos = avPoints(points)
+
 			ipt = numpy.matrix([[pos.x], [pos.y], [1]])
 			optMat = trans.I * ipt
 			o = Point(optMat[0] / optMat[2], optMat[1] / optMat[2])
@@ -141,28 +155,13 @@ def main():
 			elif (o.y >= screen[1]):
 				o.y = screen[1] - 1
 
-			if (state == NEUTRAL):
-				state = FIRST_INPUT
-				lastTime = time.time()
-			elif (state == FIRST_INPUT):
-				if (time.time() - FIRST_INPUT_TO_PRESSED > lastTime):
-					mouse.press(o.x, o.y)
-					state = PRESSED
-			elif (state == PRESSED):
-				mouse.move(o.x, o.y)
+			mouse.move(o.x, o.y)
 
-		if (state == FIRST_INPUT and
-			pos == None and
-			time.time() - FIRST_INPUT_TO_PRESSED < lastTime):
-			mouse.click(o.x, o.y)
-			time.sleep(0.2)
-			state = NEUTRAL
+			if (wm.state['buttons'] & cwiid.BTN_A):
+				mouse.click(o.x, o.y)
 
-		if (state == PRESSED and
-			pos == None and
-			time.time() - 1 > lastTime):
-			mouse.release(o.x, o.y)
-			state = NEUTRAL
+		lastTime = time.time()
+		points = []
 
 if (__name__ == '__main__'):
 	main()
