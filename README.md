@@ -8,6 +8,12 @@
 
 This program, together with a Wiimote and an infrared pen, can turn a computer screen into a touchscreen of sorts.  A "touch" is every time the Wiimote sees the light from the infrared pen.
 
+The Wiimote communicates with the computer via Bluetooth.
+
+## Physical Setup
+
+![physical setup](docs/physical_setup.png)
+
 ## Requirements
 
  * [PyMouse](https://github.com/pepijndevos/PyMouse) - for controlling the computer's mouse
